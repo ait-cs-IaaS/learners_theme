@@ -17,13 +17,13 @@ $(function () {
     script_name = $('.btn-run-exercise').first().attr('value')
 
     if (script_name) {
-        url_getCurrentState = "http://127.0.0.1:5000/current_state/" + script_name
-        url_executeExercise = "http://127.0.0.1:5000/execute_script/" + script_name
+        url_getCurrentState = venjix_url + "/current_state/" + script_name
+        url_executeExercise = venjix_url + "/execute_script/" + script_name
         // initial load
         getCurrentState()
     }
 
-    url_checkCompleted = "http://127.0.0.1:5000/check_completion/"
+    url_checkCompleted = venjix_url + "/check_completion/"
 
 
     // Run exercises
