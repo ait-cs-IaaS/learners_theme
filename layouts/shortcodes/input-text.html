@@ -3,7 +3,7 @@
 {{ $input_name := .Get "name" | default $input_id }}
 {{ $input_type := .Get "type" | default "text" }}
 
-<div>
+<div class="input-row">
   <label for="{{ $input_id }}">{{ $input_label }}</label>
   <input type="{{ $input_type }}" id="{{ $input_id }}" name="{{ $input_name }}">
 </div>

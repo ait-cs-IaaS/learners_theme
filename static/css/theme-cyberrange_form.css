@@ -1,0 +1,43 @@
+.input-group {
+  display: block;
+  background-color: var(--background-gray);
+  padding: 15px 25px;
+  margin: 15px 0 auto;
+  border-radius: 4px;
+}
+
+.input-group .input-row {
+  display: inline-flex;
+  align-items: left;
+  width: 100%;
+}
+
+
+.input-group label {
+  display: inline-block;
+  width: 20%;
+  margin: 15px 0 auto;
+  padding-right: 20px;
+}
+
+.input-group input {
+  box-shadow: inset 0 1px 3px rgba(0, 0, 0, 0.06);
+  padding: 15px;
+  transition: border-color;
+  border-radius: 0.1875rem;
+  font-family: "Rubik", sans-serif;
+  color: var(--dark);
+  text-transform: none;
+  font-weight: 300;
+  background: #ededed;
+  text-align: left;
+  border: 1px solid #d5d5d5;
+  width: auto;
+  display: inline-block;
+  flex-grow: 1;
+}
+
+.input-group input:focus {
+  outline: none;
+  border: 1px solid var(--dark);
+}
