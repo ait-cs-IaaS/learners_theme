@@ -17,7 +17,6 @@ $(function () {
     script_name = $('.btn-run-exercise').first().attr('value')
 
     if (script_name) {
-        script_name = slugify(script_name);
         url_getCurrentState = "http://127.0.0.1:5000/current_state/" + script_name
         url_executeExercise = "http://127.0.0.1:5000/execute_script/" + script_name
         // initial load
