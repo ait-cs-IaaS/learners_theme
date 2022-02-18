@@ -1,0 +1,11 @@
+{{ $exercise_title := .Get "title" }} 
+{{ $exercise_id := substr (replace $exercise_title " " "_") 0 }}
+{{ $exercise_script := .Get "script" | default $exercise_id }}
+
+<script src="/js/learners_form.js"></script>
+
+<form id="form" class="exercise-control">
+
+  {{ .Inner }}
+
+</form>

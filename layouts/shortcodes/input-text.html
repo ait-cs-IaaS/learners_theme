@@ -1,0 +1,9 @@
+{{ $input_label := .Get "label" }} 
+{{ $input_id := delimit (shuffle (split (md5 "cyberrange") "" )) "" }}
+{{ $input_name := .Get "name" | default $input_id }}
+{{ $input_type := .Get "type" | default "text" }}
+
+<div>
+  <label for="{{ $input_id }}">{{ $input_label }}</label>
+  <input type="{{ $input_type }}" id="{{ $input_id }}" name="{{ $input_name }}">
+</div>

@@ -1,0 +1,9 @@
+{{ $group_id := delimit (shuffle (split (md5 "cyberrange") "" )) "" }}
+
+<div id="{{ $group_id }}" class="input-group">
+  {{ .Inner }}
+</div>
+
+<button id="add-input-row" type="button" class="btn-run-exercise" value="{{ $group_id }}">
+  add row
+</button>
