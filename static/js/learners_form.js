@@ -26,9 +26,8 @@ $(function () {
     });
 
     $(".add-input-row").click(function() {
-
         let current_id = $(this).attr("value");
-        let next_index = parseInt(current_id.match(/\d+/)[0], 10) * 100;
+        let next_index = parseInt(current_id.match(/\d+/)[0], 10) + 1;
         let additional_container = $("#" + current_id).parent().find("#additionalInput")
 
         let last_item = additional_container.find(".input-group").last()
@@ -63,41 +62,31 @@ $(function () {
     $( ".form" ).validate({
         rules: getValidationRules(),
         submitHandler: function(form) {
-            console.log($(form));
+            submitForm(form);
+            // console.log($(form));
         }        
     })
     
 
-    // $( ".form" ).submit(function(event) {
-    //     event.preventDefault();
-    //     rule_dict = getValidationRules()[0];
-    //     msg_dict = getValidationRules()[1];
-        
-    //     // $.post(
-    //     //     'insert_endpoint_here.html',
-    //     //      $(this).serialize(),
-    //     //      function(data){
-    //     //        $("#results").html(data)
-    //     //      }
-    //     //    );
-    //     //    return false;   
-    //   });
+    $( ".form" ).submit(function(event) {
+        event.preventDefault();
+      });
 
 });
 
 function replace_identifiers(obj, next_index) {
     let input_types = ["input", "textarea", "select"]
+    var regex = /[^a-zA-Z]/g;
 
     $.each(input_types, function(){
         $.each( obj.find(String(this)), function(){
-            console.log(this)
-            $(this).attr("id", $(this).attr("id") + "_" + next_index);
-            $(this).attr("name", $(this).attr("name") + "_" + next_index);
+            $(this).attr("id", ($(this).attr("id")).replace(regex, "") + "_" + next_index);
+            $(this).attr("name", ($(this).attr("name")).replace(regex, "") + "_" + next_index);
         });
     });
 
     $.each( obj.find("label"), function(){
-        $(this).attr("for", $(this).attr("for") + "_" + next_index);
+        $(this).attr("for", ($(this).attr("for")).replace(regex, "") + "_" + next_index);
     });
 }
 
@@ -108,4 +97,33 @@ function getValidationRules() {
         rule_dict[key] = "required";
     });
     return rule_dict
+}
+
+function submitForm(form) {
+    console.log(form);
+    
+    var $form = $(".form");
+    var formData = getFormData($form);
+
+    $.ajax({
+        type: "POST",
+        url: "process.php",
+        data: formData,
+        dataType: "json",
+        encode: true,
+      }).done(function (data) {
+        console.log(data);
+      });
+    return false;   
+}
+
+function getFormData($form){
+    var unindexed_array = $form.serializeArray();
+    var indexed_array = {};
+
+    $.map(unindexed_array, function(n, i){
+        indexed_array[n['name']] = n['value'];
+    });
+
+    return indexed_array;
 }
