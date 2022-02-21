@@ -1,8 +1,8 @@
 {{ $group_title := .Get "title" | default false }}
 {{ $group_extendable := .Get "extendable" | default false }}
-{{ $group_id := index (seq 50 | shuffle) 0 }}
 
-<div id="inputgroup_{{ $group_id }}" class="input-group">
+<fieldset>
+<div id="inputgroup_" class="input-group">
   
 {{ if $group_title }}
 <h4>{{ $group_title }}</h4>
@@ -14,7 +14,14 @@
 
 {{ if $group_extendable }}
 <div id="additionalInput"></div>
-<button id="add-input-row" type="button" class="btn-run-exercise" value="{{ $group_id }}">
+
+
+<button type="button" class="add-input-row" value="">
+  
+  <svg class="bi" width="50%" height="50%">
+    <use xlink:href="#add"></use>
+  </svg>
   add row
 </button>
 {{ end }}
+</fieldset>
