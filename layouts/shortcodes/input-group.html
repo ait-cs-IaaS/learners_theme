@@ -2,7 +2,7 @@
 {{ $group_extendable := .Get "extendable" | default false }}
 
 <fieldset>
-<div id="inputgroup_" class="input-group">
+<div id="{{ if $group_extendable }}inputgroup_{{ else }}inputgroup{{end}}" class="input-group">
   
 {{ if $group_title }}
 <h4>{{ $group_title }}</h4>
