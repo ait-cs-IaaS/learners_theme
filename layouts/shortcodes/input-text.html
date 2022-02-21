@@ -1,9 +1,9 @@
 {{ $input_label := .Get "label" }} 
-{{ $input_id := delimit (shuffle (split (md5 "cyberrange") "" )) "" }}
-{{ $input_name := .Get "name" | default $input_id }}
+{{ $input_name := substr (replace $input_label " " "_") 0 }}
 {{ $input_type := .Get "type" | default "text" }}
+{{ $input_required := .Get "required" | default false }}
 
 <div class="input-row">
-  <label for="{{ $input_id }}">{{ $input_label }}</label>
-  <input type="{{ $input_type }}" id="{{ $input_id }}" name="{{ $input_name }}">
+  <label for="{{ $input_name }}">{{ $input_label }}{{ if $input_required }} *{{ end }}</label>
+  <input type="{{ $input_type }}" id="{{ $input_name }}" name="{{ $input_name }}" class="{{ if $input_required }}required{{ end }}">
 </div>
