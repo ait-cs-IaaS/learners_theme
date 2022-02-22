@@ -1,14 +1,11 @@
 $(function () {
 
-    // window.localStorage.setItem(
-    //     "formbuffer", 
-    //     $("form").html()
-    //     );
-
-    // $("#additionalInput").html(window.localStorage.getItem("formbuffer"));
-
-    // maybe persist form data in local storage?
-    // https://www.section.io/engineering-education/how-to-use-localstorage-with-javascript/
+    $.each( $(".form input, .form textarea, .form select"), function(){
+      $(this).attr("value", localStorage.getItem($(this).attr("name")));
+      $(this).on("change", (e) => {
+        localStorage.setItem(e.target.name, e.target.value);
+      });
+    });
 
     $.extend(jQuery.validator.messages, {
         required: "*"
