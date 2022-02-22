@@ -1,21 +1,88 @@
-{{ $exercise_title := .Get "title" }} 
-{{ $exercise_id := substr (replace $exercise_title " " "_") 0 }}
-{{ $exercise_script := .Get "script" | default $exercise_id }}
-{{ $form_id := delimit (shuffle (split (md5 "cyberrange") "" )) "" }}
+{{ $form_id := .Get "name" }} {{ $form_mail := .Get "mail" }}
 
 <script src="/js/learners_form.js"></script>
 <script src="https://cdnjs.cloudflare.com/ajax/libs/jquery-validate/1.19.1/jquery.validate.min.js"></script>
 
-<form id="{{ $form_id }}" class="form exercise-control">
-
+<form
+  id="{{ $form_id }}"
+  class="form exercise-control {{ if $form_mail }}mail{{ end }}"
+>
   {{ .Inner }}
 
-<button type="submit" class="btn-submit-form" value="">
+<div class="exercise-control">
+  
+  <h5>Exercise Control</h5>
+  <h4>{{ $form_id }}</h4>
 
-<svg class="bi" width="22" height="22">
-  <use xlink:href="#play"></use>
-</svg>
-submit
-</button>
+  <section class="stats_display">
+    <ul class="stats-list">
+      <li>
+        <span>Form submitted</span>
+        <span class="stat_indicator_container">
+          <div
+            id="exercise_executed"
+            class="stat_indicator loading"
+            style="display: none"
+          >
+            <svg
+              class="stat_icon"
+              xmlns="http://www.w3.org/2000/svg"
+              viewBox="0 0 52 52"
+            >
+              <circle class="stat_circle" cx="26" cy="26" r="26" fill="none" />
+              <path
+                class="stat_check"
+                fill="none"
+                d="M14.1 27.2l7.1 7.2 16.7-16.8"
+              />
+              <g class="stat_cross">
+                <path d="m15.07675,36.98865l21.84649,-21.9773" fill="none" />
+                <path d="m36.98865,36.92324l-21.9773,-21.84649" fill="none" />
+              </g>
+            </svg>
+          </div>
+        </span>
+      </li>
+      <li>
+        <span>Exercise completed</span>
+        <span class="stat_indicator_container">
+          <div
+            id="exercise_completed"
+            class="stat_indicator loading"
+            style="display: none"
+          >
+            <svg
+              class="stat_icon"
+              xmlns="http://www.w3.org/2000/svg"
+              viewBox="0 0 52 52"
+            >
+              <circle class="stat_circle" cx="26" cy="26" r="26" fill="none" />
+              <path
+                class="stat_check"
+                fill="none"
+                d="M14.1 27.2l7.1 7.2 16.7-16.8"
+              />
+              <g class="stat_cross">
+                <path d="m15.07675,36.98865l21.84649,-21.9773" fill="none" />
+                <path d="m36.98865,36.92324l-21.9773,-21.84649" fill="none" />
+              </g>
+            </svg>
+          </div>
+        </span>
+      </li>
+    </ul>
+  </section>
 
+  <button type="submit" class="btn-submit-form" value="">
+    <svg class="bi" width="22" height="22">
+      <use xlink:href="#play"></use>
+    </svg>
+    submit
+  </button>
+
+  <div id="msg-container">
+    <div id="success-msg"></div>
+    <div id="error-msg"></div>
+  </div>
+</div>
 </form>
