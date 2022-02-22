@@ -1,2 +1,2 @@
-window.venjix_url = "http://127.0.0.1:5000"
+window.learners_url = "http://127.0.0.1:5000"
 
