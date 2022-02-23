@@ -1,6 +1,5 @@
-const indicator_id_executed = "#exercise_executed";
-const indicator_id_completed = "#exercise_completed";
-
+const id_executed = "exercise_executed";
+const id_completed = "exercise_completed";
 
 /*
 The following short functions 'showLoading', 'showSuccess', 'showError' serve 
@@ -13,45 +12,141 @@ params:
 */
 
 function showLoading(id) {
-    // switch indicator to loading
-    $(id)
-        .stop(true, true)
-        .removeClass("failed")
-        .removeClass("success")
-        .addClass("loading")
-        .show();
+  // switch indicator to loading
+  $("#" + id)
+    .stop(true, true)
+    .removeClass("failed")
+    .removeClass("success")
+    .addClass("loading")
+    .show();
 }
 
 function showSuccess(id, delay = 200) {
-    // switch indicator to check
-    $(id)
-        .stop(true, true)
-        .delay(delay)
-        .queue(function (next) {
-            $(this)
-                .removeClass("loading")
-                .removeClass("failed")
-                .addClass("success")
-                .show();
-            next();
-        });
+  // switch indicator to check
+  $("#" + id)
+    .stop(true, true)
+    .delay(delay)
+    .queue(function (next) {
+      $(this)
+        .removeClass("loading")
+        .removeClass("failed")
+        .addClass("success")
+        .show();
+      next();
+    });
 }
 
 function showError(id, delay = 200) {
-    // switch indicator to fail
-    $(id)
-        .stop(true, true)
-        .delay(delay)
-        .queue(function (next) {
-            $(this)
-                .removeClass("loading")
-                .removeClass("success")
-                .addClass("failed")
-                .show();
-            next();
-        });
+  // switch indicator to fail
+  $("#" + id)
+    .stop(true, true)
+    .delay(delay)
+    .queue(function (next) {
+      $(this)
+        .removeClass("loading")
+        .removeClass("success")
+        .addClass("failed")
+        .show();
+      next();
+    });
 }
 
+function visualFeedback(
+  data = "",
+  disable_on_success = false,
+  msg = {
+    executed: "Successfully executed.",
+    execution_failed: "Connection failed.",
+    completed: "Exercise completed",
+    completion_failed: "Exercise not completed.",
+  }
+) {
+
+  if (data == "" || data == undefined) {
+    showError(id_executed);
+    showError(id_completed);
+    $("#error-msg").html("Server error.");
+    return false;
+  }
+
+  // display execution state
+  if (data.executed != undefined) {
+    if (data.executed) {
+      showSuccess(id_executed);
+      $("#error-msg").html("");
+      $("#success-msg").html("");
+    } else {
+      showError(id_executed);
+      showError(id_completed);
+      $("#success-msg").html("");
+      if (data.msg) $("#error-msg").html(data.msg);
+      else $("#error-msg").html(msg.execution_failed);
+      return false;
+    }
+  }
+
+  // display completion state
+  if (data.completed != undefined) {
+    if (data.completed) {
+      showSuccess(id_completed);
+      $("#error-msg").html("");
+      $("#success-msg").html(msg.completed);
+      if (!disable_on_success) $("#submitExercise").prop("disabled", false);
+      return true;
+    } else {
+      showError(id_completed);
+      $("#success-msg").html("");
+      if (data.msg) $("#error-msg").html(data.msg);
+      else $("#error-msg").html(msg.completion_failed);
+      $("#submitExercise").prop("disabled", false);
+      return false;
+    }
+  }
+
+  if (data.never_executed) {
+    showError(id_executed);
+    showError(id_completed);
+    $("#success-msg").html("");
+    $("#error-msg").html("No exercises executed.");
+    return false;
+  }
+}
+
+/*
+This function serves as a generic ajax-request function that returns a promise.
+
+params:
+    type: "GET", "POST"
+    payload: A dict comprising the URL and optional 'additional_headers' and 'data'
+*/
+
+function sendAjax(type, payload, token) {
+  let promise = new Promise((resolve, reject) => {
+    $.ajax({
+      type: type,
+      url: payload.url,
+      crossDomain: true,
+      headers: Object.assign(
+        {},
+        { Authorization: "Bearer " + token },
+        payload.additional_headers
+      ),
+      data: payload.data,
+
+      // execute if the request was successful
+      success: function (data) {
+        resolve(data);
+      },
+
+      // execute if request failed
+      error: function (jqXHR, textStatus, errorThrown) {
+        reject(jqXHR, textStatus, errorThrown);
+      },
+    });
+  });
+
+  return promise;
+}
 
 /*
 This function queries 'Learners' for the current status of the corresponding 
@@ -64,47 +159,25 @@ params:
     history: Whether or not to display the execution history (default = true)
 */
 
-function getCurrentState(url, token, history = true) {
-    var defer = $.Deferred();
-    $.ajax({
-        type: "GET",
-        url: url, // use uuid-dependand URL
-        crossDomain: true,
-        headers: { Authorization: "Bearer " + token }, // append JWT token
+function getExecutionHistory(url, token) {
+  var defer = $.Deferred();
 
-        // execute if the request was successful
-        success: function (data) {
-            // display execution state
-            if (data.script_executed) {
-                showSuccess(indicator_id_executed);
-            } else {
-                showError(indicator_id_executed);
-            }
+  showLoading(id_executed);
+  showLoading(id_completed);
 
-            // display completion state
-            if (data.completed) {
-                showSuccess(indicator_id_completed);
-            } else {
-                showError(indicator_id_completed);
-            }
-            if (history) {
-                // print last 10 tries
-                printHistory(data.history);
-            }
-            defer.resolve(data);
-        },
-
-        // execute if request failed
-        error: function (jqXHR, textStatus, errorThrown) {
-            // display errors
-            showError(indicator_id_executed);
-            showError(indicator_id_completed);
-            defer.reject(jqXHR, textStatus, errorThrown);
-        },
+  sendAjax("GET", (payload = { url: url }), token)
+    .then(function (data, textStatus, jqXHR) {
+      visualFeedback(data);
+      printHistory(data.history);
+      defer.resolve(data);
+    })
+    .catch(function (jqXHR, textStatus, errorThrown) {
+      visualFeedback(jqXHR);
+      defer.reject(jqXHR, textStatus, errorThrown);
     });
-    return defer.promise();
-}
 
+  return defer.promise();
+}
 
 /*
 This function is responsible for constructing the execution history in the DOM.
@@ -114,9 +187,9 @@ params:
 */
 
 function printHistory(history) {
-    if (history) {
-        // starting block of html (table header)
-        var tbl_body = `
+  if (history) {
+    // starting block of html (table header)
+    var tbl_body = `
             <table id='history-table'>
                 <tr> 
                     <th>Exercise started</th> 
@@ -125,191 +198,115 @@ function printHistory(history) {
                 </tr>
             `;
 
-        // construct each row
-        $.each(history, function () {
-            var tbl_row = "";
+    // construct each row
+    $.each(history, function () {
+      var tbl_row = "";
 
-            // construct each column per row
-            $.each(this, function (key, value) {
-                if (key == "completed") {
-                    if (Boolean(value)) {
-                        value = `
+      // construct each column per row
+      $.each(this, function (key, value) {
+        if (key == "completed") {
+          if (Boolean(value)) {
+            value = `
                             <span class='success'>
                                 succeded
                             </span>
                             `;
-                    } else {
-                        value = `
+          } else {
+            value = `
                             <span class='failed'>
                                 failed
                             </span>
                             `;
-                    }
-                }
-                if (value == null) {
-                    value = "no response";
-                }
-                tbl_row = "<td>" + value + "</td>" + tbl_row;
-            });
+          }
+        }
+        if (value == null) {
+          value = "no response";
+        }
+        tbl_row = "<td>" + value + "</td>" + tbl_row;
+      });
 
-            // append row to body
-            tbl_body += "<tr>" + tbl_row + "</tr>";
-        });
-
-        tbl_body += "</table>";
-
-        // create DOM
-        $("#history").html(tbl_body);
-        $("#history").slideDown();
-    }
-}
-
-
-/*
-This function serves as a generic ajax-request function that returns a promise.
-
-params:
-    type: "GET", "POST"
-    payload: A dict comprising the URL and optional 'additional_headers' and 'data'
-*/
-
-// ajax request function
-function sendAjax(type, payload, token) {
-    let promise = new Promise((resolve, reject) => {
-        $.ajax({
-            type: type,
-            url: payload.url,
-            crossDomain: true,
-            headers: Object.assign(
-                {},
-                { Authorization: "Bearer " + token },
-                payload.additional_headers
-            ),
-            data: payload.data,
-
-            // execute if the request was successful
-            success: function (data) {
-                resolve(data);
-            },
-
-            // execute if request failed
-            error: function (jqXHR, textStatus, errorThrown) {
-                reject(jqXHR, textStatus, errorThrown);
-            },
-        });
+      // append row to body
+      tbl_body += "<tr>" + tbl_row + "</tr>";
     });
 
-    return promise;
+    tbl_body += "</table>";
+
+    // create DOM
+    $("#history").html(tbl_body);
+
+    // Slide down effect
+    if ($("#history tr").length > 2) {
+      $("#history tr")
+        .eq(1)
+        .find("td")
+        .wrapInner('<div style="display: none;" />')
+        .parent()
+        .find("td > div")
+        .slideDown(700, function () {
+          var $set = $(this);
+          $set.replaceWith($set.contents());
+        });
+      $("#history").slideDown();
+    } else {
+      $("#history").slideDown();
+    }
+  }
 }
 
 // execute when button is clicked
 function executeAndCheck(
-    type,
-    btn,
-    token,
-    url_execute,
-    url_check,
-    payload_data,
-    additional_headers,
-    disable_on_success = false
+  type,
+  token,
+  url_execute,
+  url_check,
+  payload_data,
+  additional_headers,
+  disable_on_success = true
 ) {
-    // prevent multiple executions
-    $(btn).prop("disabled", true);
+  var defer = $.Deferred();
 
-    let execution = false;
-    let url_check_uuid = "";
+  // prevent multiple executions
+  $("#submitExercise").prop("disabled", true);
 
-    showLoading(indicator_id_executed);
-    showLoading(indicator_id_completed);
+  showLoading(id_executed);
+  showLoading(id_completed);
 
-    $("#error-msg").html("");
-    $("#success-msg").html("");
+  sendAjax(
+    "POST",
+    (payload = {
+      url: url_execute,
+      data: payload_data,
+      additional_headers: additional_headers,
+    }),
+    token
+  )
+    .then(function (data, textStatus, jqXHR) {
+      url_check += data.uuid || "";
+      visualFeedback(data, disable_on_success);
 
-    $.when(
-        sendAjax(
-            "POST",
-            (payload = {
-                url: url_execute,
-                data: payload_data,
-                additional_headers: additional_headers,
-            }),
-            token
-        )
-    )
-
-        // execute if the execution-request was successful
+      sendAjax(
+        "GET",
+        (payload = {
+          url: url_check,
+        }),
+        token
+      )
         .then(function (data, textStatus, jqXHR) {
-            if (data.executed == true) {
-                showSuccess(indicator_id_executed);
-                execution = true;
-            } else {
-                showError(indicator_id_executed);
-                showError(indicator_id_completed);
-                $("#error-msg").html("Execution failed.<br>");
-            }
-
-            if (type == "script") {
-                // concatenate CPM-check base URL with UUID
-                url_check_uuid = url_check + data.uuid;
-            }
+          visualFeedback(data, disable_on_success);
+          printHistory(data.history);
+          defer.resolve(data);
         })
-
-        // execute if execution-request failed
-        .catch(function (resp) {
-            showError(indicator_id_executed);
-            showError(indicator_id_completed);
-            $("#error-msg").html("Connection failed.<br>");
-        })
-
-        .then(function () {
-            // only check on completion if the execution was successful
-            if (execution && type == "script") {
-                $.when(
-                    sendAjax(
-                        "GET",
-                        (payload = {
-                            url: url_check_uuid,
-                        }),
-                        token
-                    )
-                )
-
-                    // execute if the response was received
-                    .then(function (data, textStatus, jqXHR) {
-                        if (data.completed == true) {
-                            showSuccess(indicator_id_completed);
-                            $("#success-msg").html("Execution completed.<br>");
-                        } else {
-                            showError(indicator_id_completed);
-                            $("#error-msg").append("Not completed.<br>");
-                        }
-
-                        // update history
-                        getCurrentState((url = url_getCurrentState), (token = token));
-
-                        // enable button for further executions
-                        $(btn).prop("disabled", false);
-                    })
-
-                    // execute if completion-request failed
-                    .catch(function (resp) {
-                        showError(indicator_id_completed);
-                        $("#error-msg").append("Connection failed.<br>");
-
-                        // enable button for further executions
-                        $(btn).prop("disabled", false);
-                    });
-            } else if (execution) {
-                showSuccess(indicator_id_completed, (delay = 800));
-                $("#success-msg").html("Exercise completed.<br>");
-
-                // enable button for further executions
-                if (!disable_on_success) {
-                    $(btn).prop("disabled", false);
-                }
-            } else {
-                // enable button for further executions
-                $(btn).prop("disabled", false);
-            }
+        .catch(function (jqXHR, textStatus, errorThrown) {
+          visualFeedback(jqXHR, disable_on_success);
+          defer.reject(jqXHR, textStatus, errorThrown);
         });
+
+      defer.resolve(data);
+    })
+    .catch(function (jqXHR, textStatus, errorThrown) {
+      visualFeedback(jqXHR, disable_on_success);
+      defer.reject(jqXHR, textStatus, errorThrown);
+    });
+
+  return defer.promise();
 }
