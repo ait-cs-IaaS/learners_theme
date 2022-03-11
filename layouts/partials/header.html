@@ -42,6 +42,9 @@
 			  crossorigin="anonymous">
     </script>
 
+    <script src="{{"js/jspdf.js"| relURL}}{{ if $assetBusting }}?{{ now.Unix }}{{ end }}"></script>
+    <script src="{{"js/createPDF.js"| relURL}}{{ if $assetBusting }}?{{ now.Unix }}{{ end }}"></script>
+
     <style>
       :root #header + #content > #left > #rlblock_left{
           display:none !important;
