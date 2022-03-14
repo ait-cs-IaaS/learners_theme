@@ -5082,7 +5082,7 @@ AcroForm.internal.setBitPosition = function (variable, position, value) {
 		this.text(text, x, y);
 		//TODO We really need the text baseline height to do this correctly.
 		// Or ability to draw text on top, bottom, center, or baseline.
-		y += height * .2;
+		y += height * 0.2;
 		this.link(x, y - height, width, height, options);
 		return width;
 	};
@@ -5217,7 +5217,7 @@ AcroForm.internal.setBitPosition = function (variable, position, value) {
     var fontName,
         fontSize,
         fontStyle,
-        padding = 3,
+        padding = 12,
         margin = 40,
         headerFunction,
         lastCellPos = { x: undefined, y: undefined, w: undefined, h: undefined, ln: undefined },
@@ -5306,15 +5306,16 @@ AcroForm.internal.setBitPosition = function (variable, position, value) {
                 }
                 //We ignore the passed y: the lines may have different heights
                 y = getLastCellPosition().y + getLastCellPosition().h;
-                if (pgAdded) y = margin + 10;
+                if (pgAdded) y = margin + 25;
             }
         }
 
         if (txt[0] !== undefined) {
             if (this.printingHeaderRow) {
-                this.rect(x, y, w, h, 'FD');
+                this.rect(x, y, w, h, 'F');
             } else {
-                this.rect(x, y, w, h);
+                this.setFillColor(244, 244, 244);
+                this.rect(x, y, w, h, 'F');
             }
             if (align === 'right') {
                 if (!(txt instanceof Array)) {
@@ -5326,7 +5327,7 @@ AcroForm.internal.setBitPosition = function (variable, position, value) {
                     this.text(currentLine, x + w - textSize - padding, y + this.internal.getLineHeight() * (i + 1));
                 }
             } else {
-                this.text(txt, x + padding, y + this.internal.getLineHeight());
+                this.text(txt, x + padding, y + this.internal.getLineHeight() + 4);
             }
         }
         setLastCellPosition(x, y, w, h, ln);
@@ -5503,12 +5504,14 @@ AcroForm.internal.setBitPosition = function (variable, position, value) {
 
         // Construct the data rows
         for (i = 0, ln = data.length; i < ln; i += 1) {
+            this.setFillColor(244, 244, 244);
             var lineHeight;
             model = data[i];
             lineHeight = this.calculateLineHeight(headerNames, columnWidths, model);
 
             for (j = 0, jln = headerNames.length; j < jln; j += 1) {
                 header = headerNames[j];
+                this.setFillColor(244, 244, 244);
                 this.cell(x, y, columnWidths[header], lineHeight, model[header], i + 2, header.align);
             }
         }
@@ -5564,7 +5567,7 @@ AcroForm.internal.setBitPosition = function (variable, position, value) {
         this.setFontStyle('bold');
         var tempHeaderConf = [];
         for (i = 0, ln = this.tableHeaderRow.length; i < ln; i += 1) {
-            this.setFillColor(200, 200, 200);
+            this.setFillColor(228, 228, 228);
 
             tableHeaderCell = this.tableHeaderRow[i];
             if (new_page) {
@@ -7546,7 +7549,6 @@ AcroForm.internal.setBitPosition = function (variable, position, value) {
 					} else if (cn.nodeName === "TABLE") {
 						table2json = tableToJson(cn, renderer);
 						renderer.y += 10;
-                        console.log(renderer.pdf.margins_doc);
 						renderer.pdf.table(renderer.x, renderer.y, table2json.rows, table2json.headers, {
 							autoSize: false,
 							printHeaders: elementHandlers.printHeaders,
@@ -7554,7 +7556,6 @@ AcroForm.internal.setBitPosition = function (variable, position, value) {
                             offsetTop: 200,
                             fontSize: 9
 						});
-                        console.log(renderer.pdf.margins_doc);
 						renderer.y = renderer.pdf.lastCellPos.y + renderer.pdf.lastCellPos.h + 20;
 					} else if (cn.nodeName === "OL" || cn.nodeName === "UL") {
 						listCount = 1;
