@@ -4083,7 +4083,7 @@ AcroForm.internal.setBitPosition = function (variable, position, value) {
 						canvas.height = Math.min(H * K, obj.height - cy);
 						var ctx = canvas.getContext('2d');
 						ctx.drawImage(obj, 0, cy, obj.width, canvas.height, 0, 0, canvas.width, canvas.height);
-						var args = [canvas, x, cy ? 0 : y, canvas.width / K, canvas.height / K, format, null, 'SLOW'];
+						var args = [canvas, x, cy ? 0 : y, canvas.width / K, canvas.height / K, format, null, 'SLOW'];  
 						this.addImage.apply(this, args);
 						cy += canvas.height;
 						if (cy >= obj.height) break;
@@ -4151,7 +4151,7 @@ AcroForm.internal.setBitPosition = function (variable, position, value) {
 
 	// Image functionality ported from pdf.js
 	var putImage = function putImage(img) {
-
+        
 		var objectNumber = this.internal.newObject(),
 		    out = this.internal.write,
 		    putStream = this.internal.putStream;
@@ -5467,18 +5467,22 @@ AcroForm.internal.setBitPosition = function (variable, position, value) {
                 columnMatrix[header] = data.map(func);
 
                 // get header width
-                columnMinWidths.push(this.getTextDimensions(headerPrompts[i] || header).w);
+                columnMinWidths.push(this.getTextDimensions(headerPrompts[i] || header).w + 2 * padding);
                 column = columnMatrix[header];
 
                 // get cell widths
                 for (j = 0, cln = column.length; j < cln; j += 1) {
                     columnData = column[j];
-                    columnMinWidths.push(this.getTextDimensions(columnData).w);
+                    columnMinWidths.push(this.getTextDimensions(columnData).w + 2 * padding);
                 }
 
                 // get final column width
                 columnWidths[header] = jsPDFAPI.arrayMax(columnMinWidths);
 
+                let lastHeader = headerNames[headerNames.length - 1]
+                let currentWidth = columnWidths[lastHeader]
+                columnWidths[lastHeader] = currentWidth - padding * (headerNames.length + 1);
+                
                 //have to reset
                 columnMinWidths = [];
             }
@@ -5531,8 +5535,8 @@ AcroForm.internal.setBitPosition = function (variable, position, value) {
             lineHeight = 0;
         for (var j = 0; j < headerNames.length; j++) {
             header = headerNames[j];
-            model[header] = this.splitTextToSize(String(model[header]), columnWidths[header] - padding);
-            var h = this.internal.getLineHeight() * model[header].length + padding;
+            model[header] = this.splitTextToSize(String(model[header]), columnWidths[header] - 16);
+            var h = this.internal.getLineHeight() * model[header].length + 16;
             if (h > lineHeight) lineHeight = h;
         }
         return lineHeight;
@@ -7252,7 +7256,7 @@ AcroForm.internal.setBitPosition = function (variable, position, value) {
 	ResolveUnitedNumber = function ResolveUnitedNumber(css_line_height_string) {
 
 		//IE8 issues
-		css_line_height_string = css_line_height_string === "auto" ? "0px" : css_line_height_string;
+		css_line_height_string = css_line_height_string === "auto" || css_line_height_string === "" ? "0px" : css_line_height_string;
 		if (css_line_height_string.indexOf("em") > -1 && !isNaN(Number(css_line_height_string.replace("em", "")))) {
 			css_line_height_string = Number(css_line_height_string.replace("em", "")) * 18.719 + "px";
 		}
@@ -7550,7 +7554,7 @@ AcroForm.internal.setBitPosition = function (variable, position, value) {
 						table2json = tableToJson(cn, renderer);
 						renderer.y += 10;
 						renderer.pdf.table(renderer.x, renderer.y, table2json.rows, table2json.headers, {
-							autoSize: false,
+							autoSize: true,
 							printHeaders: elementHandlers.printHeaders,
 							margins: renderer.pdf.margins_doc,
                             offsetTop: 200,

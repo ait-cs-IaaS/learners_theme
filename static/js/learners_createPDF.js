@@ -1,12 +1,18 @@
+// var dataUrl = "";
+
 $(function () {
 
     $(".gpdf").click(function () {
         generatePDF();
     });
+
+    // dataUrl = getDataUrl($("#body-inner").find("img")[0]);
+    // console.log(dataUrl);
+
 });
 
 function generatePDF() {
-    var pdf = new jsPDF("p", "pt", "a4");
+    var pdf = new jsPDF("p", "pt", "a4", true);
     let source = $("#body-inner").clone()[0];
 
     let html = '<div id="pdfcontainer" style="position: absolute; top: -9999px">';
@@ -15,7 +21,7 @@ function generatePDF() {
     $("#body-inner").append(html);
 
     source = $("#pdfcontainer")[0];
-    
+
     margins = {
         top: 80,
         bottom: 60,
@@ -28,18 +34,20 @@ function generatePDF() {
         margins.left, // x coord
         margins.top, // y coord
         {
+            unit: 'pt',
             jsPDF: document,
             autoPaging: "text",
             width: margins.width, // max width of content on PDF
         },
 
         function (dispose) {
-            
+
             pdf.setFontSize(7);
             pdf.setTextColor("#9a9a9a");
+            pdf.setFont("helvetica")
 
             var pageTitle = $(source).find("h1:first").text().trim()
-            
+
             const pageCount = pdf.internal.getNumberOfPages();
             for (let i = 1; i <= pageCount; i++) {
                 pdf.setPage(i);
@@ -59,9 +67,9 @@ function generatePDF() {
                     footer,
                     80,
                     pageHeight - 30,
-                    { baseline: "bottom"}
+                    { baseline: "bottom" }
                 );
-            }
+            };
             pdf.save("Report_" + pageTitle + ".pdf");
         },
         margins
@@ -70,12 +78,24 @@ function generatePDF() {
     $("#pdfcontainer").remove();
 }
 
+function getDataUrl(img) {
+    // Create canvas
+    const canvas = document.createElement('canvas');
+    const ctx = canvas.getContext('2d');
+    // Set width and height
+    canvas.width = img.width;
+    canvas.height = img.height;
+    // Draw the image
+    ctx.drawImage(img, 0, 0);
+    return canvas.toDataURL('image/jpeg');
+}
+
 function cleanHTML(source) {
     $.each($(source).find("*"), function () {
         let element = $(this)[0];
         let tagName = $(element).prop("tagName");
         var k = parseInt($(tagName).css("font-size"));
-        var redSize = (k * 80) / 100; 
+        var redSize = (k * 80) / 100;
         $(element).css({ "font-size": redSize });
         $(element).css({ "padding": 0 });
     });
@@ -109,7 +129,7 @@ function cleanHTML(source) {
     });
 
     // Remove unnecessary elements
-    let objects_to_remove = ["div.exercise-control", ".add-input-row", "button", "aside", ".copy-to-clipboard"];
+    let objects_to_remove = ["div.exercise-control", ".add-input-row", "button", "aside", ".copy-to-clipboard", "img"];
     $.each(objects_to_remove, function (i) {
         $(source).find(objects_to_remove[i]).remove();
     });
