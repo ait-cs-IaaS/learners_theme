@@ -10,7 +10,7 @@ $(function () {
     $(this)
       .parent()
       .find(".add-input-row")
-      .attr("value", "inputgroup_" + new_index);
+      .attr("value", `inputgroup_${new_index}`);
 
     replace_identifiers($(this), new_index);
   });
@@ -18,7 +18,7 @@ $(function () {
   $(".add-input-row").click(function () {
     let current_id = $(this).attr("value");
     let next_index = parseInt(current_id.match(/\d+/)[0], 10) + 1;
-    let additional_container = $("#" + current_id)
+    let additional_container = $(`#${current_id}`)
       .parent()
       .find("#additionalInput");
 
@@ -31,9 +31,7 @@ $(function () {
     replace_identifiers(new_html_object, next_index);
 
     let html =
-      '<div id="inputgroup_' +
-      next_index +
-      '" style="display: none" class="input-group">';
+      `<div id="inputgroup_${next_index}" style="display: none" class="input-group">`;
     html +=
       '<div class="closer"><svg class="bi" width="50%" height="50%"><use xlink:href="#close"></use></svg></div>';
     html += new_html_object.html();
@@ -42,9 +40,9 @@ $(function () {
     additional_container.append(html);
     additional_container
       .find("h4")
-      .html("Additional " + $("#" + current_id + " h4").html());
+      .html("Additional " + $(`#${current_id} h4`).html());
 
-    $("#inputgroup_" + next_index).slideDown();
+    $(`#inputgroup_${next_index}`).slideDown();
     loadPersist();
 
     $(document).on("click", ".closer", function () {
@@ -56,35 +54,43 @@ $(function () {
     });
   });
 
-  $(".form").validate({
-    rules: getValidationRules(),
-    submitHandler: function (form) {
-      submitForm(form);
-    },
-  });
+  $(".form").validate({ rules: getValidationRules() });
 
   $(".form").submit(function (event) {
+    let status = $(this).validate({ rules: getValidationRules() });
+    if (!Object.keys(status.invalid).length) {
+      submitForm(this);
+      getHistory();
+    }
     event.preventDefault();
   });
 
   loadPersist();
-
-  getExecutionHistory(
-    (url = learners_url + "/form/" + $(".form").attr("id")),
-    (token = getCookie("auth"))
-  ).then(function (response) {
-    if (response.completed) {
-      disableForm();
-    }
-  });
+  getHistory();
 });
 
-function disableForm() {
-  $(".btn-submit-form").prop("disabled", true);
+
+function getHistory() {
+  $.each($(".form"), function () {
+    let id = $(this).attr("id")
+    getExecutionHistory(
+      (id = id),
+      (url = `${learners_url}/form/`),
+      (token = getCookie("auth"))
+    ).then(function (response) {
+      if (response.completed) {
+        disableForm(id);
+      }
+    });
+  });
+}
+
+function disableForm(id) {
+  $(`#${id} .btn-submit-form`).prop("disabled", true);
 
   let input_types = ["input", "textarea", "select", "button"];
   $.each(input_types, function () {
-    $.each($(".form").find(String(this)), function () {
+    $.each($(`#${id}`).find(String(this)), function () {
       $(this).prop("disabled", "true");
     });
   });
@@ -96,22 +102,16 @@ function replace_identifiers(obj, next_index) {
 
   $.each(input_types, function () {
     $.each(obj.find(String(this)), function () {
-      $(this).attr(
-        "id",
-        $(this).attr("id").replace(regex, "") + "_" + next_index
-      );
-      $(this).attr(
-        "name",
-        $(this).attr("name").replace(regex, "") + "_" + next_index
-      );
+      let base = $(this).attr("id").replace(regex, "");
+      $(this).attr("id", `${base}_${next_index}`);
+      base = $(this).attr("name").replace(regex, "");
+      $(this).attr("name", `${base}_${next_index}`);
     });
   });
 
   $.each(obj.find("label"), function () {
-    $(this).attr(
-      "for",
-      $(this).attr("for").replace(regex, "") + "_" + next_index
-    );
+    let base = $(this).attr("for").replace(regex, "");
+    $(this).attr("for", `${base}_${next_index}`);
   });
 }
 
@@ -125,14 +125,15 @@ function getValidationRules() {
 }
 
 function submitForm(form) {
-  var formData = getFormData($(".form"));
+  var formData = getFormData($(form));
   var method = $(".form").hasClass("mail") ? "mail" : "";
 
   executeAndCheck(
+    (id = $(form).attr("id")),
     (type = "form"),
     (token = getCookie("auth")),
-    (url_execute = learners_url + "/form/" + $(".form").attr("id")),
-    (url_check = learners_url + "/form/" + $(".form").attr("id")),
+    (url_execute = `${learners_url}/form/`),
+    (url_check = `${learners_url}/form/`),
     (payload_data = formData),
     (additional_headers = { Method: method }),
     (disable_on_success = true)

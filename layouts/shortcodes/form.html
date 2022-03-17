@@ -2,9 +2,6 @@
 {{ $form_id := substr (replace $form_name " " "_") 0 }}
 {{ $form_mail := .Get "mail" }}
 
-<script src="/js/learners_exercise-form.js"></script>
-<script src="https://cdnjs.cloudflare.com/ajax/libs/jquery-validate/1.19.1/jquery.validate.min.js"></script>
-
 <form
   id="{{ $form_id }}"
   class="form exercise-control {{ if $form_mail }}mail{{ end }}"
