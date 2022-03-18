@@ -1,24 +1,19 @@
-$(function () {
-  let script_name = $(".btn-run-exercise").first().attr("value");
-
-  if (script_name) {
-    let id = $(".exercise-control").first().attr("id");
-
+function scriptExercise(exercise) {
+  
     getExecutionHistory(
-      (parentID = id),
-      (url = `${learners_url}/history/${script_name}`),
+      (parentID = exercise.id),
+      (url = `${learners_url}/history/${exercise.script}`),
       (token = getCookie("auth"))
     );
 
     // Run exercises
-    $(".btn-run-exercise").click(function () {
+    $(`#${exercise.id} .btn-run-exercise`).click(function () {
       executeAndCheck(
-        (id = id),
+        (id = exercise.id),
         (type = "script"),
         (token = getCookie("auth")),
-        (url_execute = `${learners_url}/execute/${script_name}`),
+        (url_execute = `${learners_url}/execute/${exercise.script}`),
         (url_check = `${learners_url}/monitor/`)
       );
     });
-  }
-});
+};

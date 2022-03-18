@@ -1,12 +1,35 @@
-$(function () {
+function formExercise(exercise) {
+
   $.extend(jQuery.validator.messages, {
     required: "*",
   });
 
-  $.each($(".form #inputgroup_"), function (index) {
-    let new_index = index + 1;
+  if ($(`#${exercise.id}`).find("#additionalInput").length) {
+    initAdditionalInput(exercise);
+  }
 
-    $(this).attr("id", "inputgroup_" + new_index);
+  $(`#${exercise.id}`).validate({ rules: getValidationRules() });
+
+  $(`#${exercise.id}`).submit(function (event) {
+    let status = $(this).validate({ rules: getValidationRules() });
+    if (!Object.keys(status.invalid).length) {
+      submitForm(this, exercise);
+      getHistory(exercise);
+    }
+    event.preventDefault();
+  });
+
+  loadPersist(exercise);
+  getHistory(exercise);
+};
+
+// ------------------------------------------------------------------------------------------------------------
+
+function initAdditionalInput(exercise) {
+  $.each($(`#${exercise.id} #inputgroup_`), function (index) {
+
+    let new_index = index + 1;
+    $(this).attr("id", `inputgroup_${new_index}`);
     $(this)
       .parent()
       .find(".add-input-row")
@@ -27,7 +50,7 @@ $(function () {
       next_index = parseInt(last_item.attr("id").match(/\d+/)[0], 10) + 1;
     }
 
-    let new_html_object = $("#" + current_id).clone();
+    let new_html_object = $(`#${current_id}`).clone();
     replace_identifiers(new_html_object, next_index);
 
     let html =
@@ -35,7 +58,7 @@ $(function () {
     html +=
       '<div class="closer"><svg class="bi" width="50%" height="50%"><use xlink:href="#close"></use></svg></div>';
     html += new_html_object.html();
-    html += "</div>";
+    html += '</div>';
 
     additional_container.append(html);
     additional_container
@@ -43,7 +66,7 @@ $(function () {
       .html("Additional " + $(`#${current_id} h4`).html());
 
     $(`#inputgroup_${next_index}`).slideDown();
-    loadPersist();
+    loadPersist(exercise);
 
     $(document).on("click", ".closer", function () {
       $(this)
@@ -54,39 +77,24 @@ $(function () {
     });
   });
 
-  $(".form").validate({ rules: getValidationRules() });
+}
 
-  $(".form").submit(function (event) {
-    let status = $(this).validate({ rules: getValidationRules() });
-    if (!Object.keys(status.invalid).length) {
-      submitForm(this);
-      getHistory();
+
+function getHistory(exercise) {
+  getExecutionHistory(
+    (id = exercise.id),
+    (url = `${learners_url}/form/${exercise.id}`),
+    (token = getCookie("auth"))
+  ).then(function (response) {
+    if (response.completed) {
+      disableForm(exercise.id);
     }
-    event.preventDefault();
-  });
-
-  loadPersist();
-  getHistory();
-});
-
-
-function getHistory() {
-  $.each($(".form"), function () {
-    let id = $(this).attr("id")
-    getExecutionHistory(
-      (id = id),
-      (url = `${learners_url}/form/`),
-      (token = getCookie("auth"))
-    ).then(function (response) {
-      if (response.completed) {
-        disableForm(id);
-      }
-    });
   });
 }
 
 function disableForm(id) {
   $(`#${id} .btn-submit-form`).prop("disabled", true);
+  $(`#${id} .add-input-row`).remove();
 
   let input_types = ["input", "textarea", "select", "button"];
   $.each(input_types, function () {
@@ -124,16 +132,17 @@ function getValidationRules() {
   return rule_dict;
 }
 
-function submitForm(form) {
+function submitForm(form, exercise) {
+
   var formData = getFormData($(form));
-  var method = $(".form").hasClass("mail") ? "mail" : "";
+  var method = $(`#${exercise.id}`).hasClass("mail") ? "mail" : "";
 
   executeAndCheck(
-    (id = $(form).attr("id")),
+    (id = exercise.id),
     (type = "form"),
     (token = getCookie("auth")),
-    (url_execute = `${learners_url}/form/`),
-    (url_check = `${learners_url}/form/`),
+    (url_execute = `${learners_url}/form/${exercise.id}`),
+    (url_check = `${learners_url}/form/${exercise.id}`),
     (payload_data = formData),
     (additional_headers = { Method: method }),
     (disable_on_success = true)
@@ -151,15 +160,15 @@ function getFormData($form) {
   return indexed_array;
 }
 
-function loadPersist() {
-  $.each($(".form input"), function () {
+function loadPersist(exercise) {
+  $.each($(`#${exercise.id} input`), function () {
     $(this).attr("value", localStorage.getItem($(this).attr("name")));
     $(this).on("change", (e) => {
       localStorage.setItem(e.target.name, e.target.value);
     });
   });
 
-  $.each($(".form textarea, .form select"), function () {
+  $.each($(`#${exercise.id} textarea, #${exercise.id} select`), function () {
     $(this).val(localStorage.getItem($(this).attr("name")));
     $(this).on("change", (e) => {
       localStorage.setItem(e.target.name, e.target.value);

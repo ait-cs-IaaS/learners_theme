@@ -180,7 +180,7 @@ function getExecutionHistory(parentID, url, token) {
   showLoading(id_executed);
   showLoading(id_completed);
 
-  sendAjax("GET", (payload = { url: url + parentID }), token)
+  sendAjax("GET", (payload = { url: url }), token)
     .then(function (data, textStatus, jqXHR) {
       visualFeedback(parentID, data);
       printHistory(parentID, data.history);
@@ -278,9 +278,6 @@ function executeAndCheck(
   var id_executed = `#${id} #exercise_executed`;
   var id_completed = `#${id} #exercise_completed`;
   var submit_btn = $(`#${id} #submitExercise`);
-
-  url_execute += `${id}`;
-  url_check += `${id}`;
 
   // prevent multiple executions
   submit_btn.prop("disabled", true);
