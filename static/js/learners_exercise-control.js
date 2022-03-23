@@ -84,6 +84,7 @@ function visualFeedback(
     } else {
       showError(id_executed);
       showError(id_completed);
+      submit_btn.prop("disabled", false);
       success_container.html("");
       if (data.msg) {
         error_container.html(data.msg);
@@ -113,6 +114,8 @@ function visualFeedback(
       submit_btn.prop("disabled", false);
       return false;
     }
+  } else {
+    submit_btn.prop("disabled", false);
   }
 
   if (data.never_executed) {
@@ -202,7 +205,7 @@ params:
 */
 
 function printHistory(parentID, history) {
-  var history_container = `#${parentID} #history`;
+  var history_container = $(`#${parentID} #history`);
 
   if (history) {
     // starting block of html (table header)
@@ -244,8 +247,8 @@ function printHistory(parentID, history) {
     history_container.html(tbl_body);
 
     // Slide down effect
-    if ($(`${history_container} tr`).length > 2) {
-      $(`${history_container} tr`)
+    if (history_container.find("tr").length > 2) {
+      history_container.find("tr")
         .eq(1)
         .find("td")
         .wrapInner('<div style="display: none;" />')
@@ -297,6 +300,7 @@ function executeAndCheck(
     .then(function (data, textStatus, jqXHR) {
       url_check += data.uuid || "";
       visualFeedback(id, data, disable_on_success);
+      printHistory(id, data.history);
 
       sendAjax(
         "GET",
