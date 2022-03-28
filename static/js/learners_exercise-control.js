@@ -57,6 +57,7 @@ function visualFeedback(
     execution_failed: "Connection failed.",
     completed: "Exercise completed",
     completion_failed: "Exercise not completed.",
+    never_executed: "Exercise not executed yet.",
   }
 ) {
   var id_executed = `#${parentID} #exercise_executed`;
@@ -85,8 +86,10 @@ function visualFeedback(
       success_container.html("");
       if (data.msg) {
         error_container.html(data.msg);
-      } else {
+      } else if (data.connection_failed) {
         error_container.html(msg.execution_failed);
+      } else {
+        error_container.html(msg.never_executed);
       }
       return false;
     }
@@ -301,7 +304,6 @@ params:
 */
 
 function getExecutionHistory(exercise) {
-  console.log(exercise)
   var defer = $.Deferred();
 
   var id_executed = `#${exercise.id} #exercise_executed`;
