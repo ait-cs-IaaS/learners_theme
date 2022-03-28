@@ -181,6 +181,7 @@ function printHistory(parentID, history) {
                 <tr> 
                     <th>Exercise started</th> 
                     <th>Response received</th> 
+                    <th>Message</th> 
                     <th>Completed</th> 
                 </tr>
             `;
@@ -188,6 +189,8 @@ function printHistory(parentID, history) {
     // construct each row
     $.each(history, function () {
       var tbl_row = "";
+
+      console.log(history)
 
       // construct each column per row
       $.each(this, function (key, value) {
@@ -198,7 +201,9 @@ function printHistory(parentID, history) {
             value = `<span class='failed'>failed</span>`;
           }
         }
-        if (value == null) {
+        if (value == null && key == "msg") {
+          value = "-";
+        } else if (value == null) {
           value = "no response";
         }
         tbl_row = `<td> ${value} </td> ${tbl_row}`;
