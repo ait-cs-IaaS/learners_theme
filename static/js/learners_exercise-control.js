@@ -190,8 +190,6 @@ function printHistory(parentID, history) {
     $.each(history, function () {
       var tbl_row = "";
 
-      console.log(history)
-
       // construct each column per row
       $.each(this, function (key, value) {
         if (key == "completed") {
