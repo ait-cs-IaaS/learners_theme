@@ -107,10 +107,12 @@ function replace_identifiers(obj, next_index) {
 
   $.each(input_types, function () {
     $.each(obj.find(String(this)), function () {
+      console.log($(this).value)
       let base = $(this).attr("id").replace(regex, "");
       $(this).attr("id", `${base}_${next_index}`);
       base = $(this).attr("name").replace(regex, "");
       $(this).attr("name", `${base}_${next_index}`);
+      console.log($(this).value)
     });
   });
 
@@ -131,9 +133,23 @@ function getValidationRules() {
 
 function submitForm(form, exercise) {
 
-  exercise["formData"] = getFormData($(form));
-  var method = $(`#${exercise.id}`).hasClass("mail") ? "mail" : "";
-  executeAndCheck(exercise)
+  let fieldsets = $(form).find("fieldset");
+  console.log(fieldsets)
+  $.each(fieldsets, function () {
+    let minItems = $(this).find("[name='minInputs']").first().value
+    console.log(minItems)
+  });
+
+
+  // $.each(obj.find("label"), function () {
+  //   let base = $(this).attr("for").replace(regex, "");
+  //   $(this).attr("for", `${base}_${next_index}`);
+  // });
+
+
+  // exercise["formData"] = getFormData($(form));
+  // var method = $(`#${exercise.id}`).hasClass("mail") ? "mail" : "";
+  // executeAndCheck(exercise)
 }
 
 function getFormData($form) {

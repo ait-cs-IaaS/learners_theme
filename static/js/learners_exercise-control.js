@@ -63,6 +63,7 @@ function visualFeedback(
   var id_executed = `#${parentID} #exercise_executed`;
   var id_completed = `#${parentID} #exercise_completed`;
   var error_container = $(`#${parentID} #error-msg`);
+  var msg_detail = $(`#${parentID} #msg-detail`);
   var success_container = $(`#${parentID} #success-msg`);
   var submit_btn = $(`#${parentID} #submitExercise`);
 
@@ -84,12 +85,13 @@ function visualFeedback(
       showError(id_completed);
       submit_btn.prop("disabled", false);
       success_container.html("");
-      if (data.msg) {
-        error_container.html(data.msg);
-      } else if (data.connection_failed) {
+      if (data.connection_failed) {
         error_container.html(msg.execution_failed);
       } else {
         error_container.html(msg.never_executed);
+      }
+      if (data.msg) {
+        msg_detail.html(data.msg);
       }
       return false;
     }
@@ -106,10 +108,9 @@ function visualFeedback(
     } else {
       showError(id_completed);
       success_container.html("");
+      error_container.html(msg.completion_failed);
       if (data.msg) {
-        error_container.html(data.msg);
-      } else {
-        error_container.html(msg.completion_failed);
+        msg_detail.html(data.msg);
       }
       submit_btn.prop("disabled", false);
       return false;
@@ -181,7 +182,6 @@ function printHistory(parentID, history) {
                 <tr> 
                     <th>Exercise started</th> 
                     <th>Response received</th> 
-                    <th>Message</th> 
                     <th>Completed</th> 
                 </tr>
             `;
@@ -192,19 +192,21 @@ function printHistory(parentID, history) {
 
       // construct each column per row
       $.each(this, function (key, value) {
-        if (key == "completed") {
-          if (Boolean(value)) {
-            value = `<span class='success'>succeded</span>`;
-          } else {
-            value = `<span class='failed'>failed</span>`;
+        if (key != "msg") {
+          if (key == "completed") {
+            if (Boolean(value)) {
+              value = `<span class='success'>succeded</span>`;
+            } else {
+              value = `<span class='failed'>failed</span>`;
+            }
           }
+          if (value == null && key == "msg") {
+            value = "-";
+          } else if (value == null) {
+            value = "no response";
+          }
+          tbl_row = `<td> ${value} </td> ${tbl_row}`;
         }
-        if (value == null && key == "msg") {
-          value = "-";
-        } else if (value == null) {
-          value = "no response";
-        }
-        tbl_row = `<td> ${value} </td> ${tbl_row}`;
       });
 
       // append row to body
