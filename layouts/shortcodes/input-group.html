@@ -4,16 +4,13 @@
 
 <fieldset>
 <div id="{{ if $group_extendable }}inputgroup_{{ else }}inputgroup{{end}}" class="input-group">
-
-{{ if $group_minInputs }}
-<input type="hidden" name="minInputs" id="minInputs" value="{{ $group_minInputs }}">
-{{ end }}
-
-{{ $group_minInputs }}
+<input type="hidden" name="minInputs" value="{{ $group_minInputs }}">
   
 {{ if $group_title }}
 <h4>{{ $group_title }}</h4>
 {{ end }}
+
+<div id="fieldset-error"></div>
 
 {{ .Inner }}
 

@@ -41,16 +41,18 @@ function initAdditionalInput(exercise) {
   $(".add-input-row").click(function () {
     let current_id = $(this).attr("value");
     let next_index = parseInt(current_id.match(/\d+/)[0], 10) + 1;
-    let additional_container = $(`#${current_id}`)
+    let additional_container = $(this).parent().find(`#${current_id}`)
       .parent()
       .find("#additionalInput");
-
+    
     let last_item = additional_container.find(".input-group").last();
     if (last_item.length != 0) {
       next_index = parseInt(last_item.attr("id").match(/\d+/)[0], 10) + 1;
     }
-
-    let new_html_object = $(`#${current_id}`).clone();
+    
+    let current_reference = $(this).parent().find(`#${current_id}`)
+    let new_html_object = current_reference.clone();
+    new_html_object.find("#fieldset-error").remove();
     replace_identifiers(new_html_object, next_index);
 
     let html =
@@ -63,7 +65,7 @@ function initAdditionalInput(exercise) {
     additional_container.append(html);
     additional_container
       .find("h4")
-      .html("Additional " + $(`#${current_id} h4`).html());
+      .html("Additional " + current_reference.find("h4").html());
 
     $(`#inputgroup_${next_index}`).slideDown();
     loadPersist(exercise);
@@ -106,13 +108,11 @@ function replace_identifiers(obj, next_index) {
   var regex = /[^a-zA-Z]/g;
 
   $.each(input_types, function () {
-    $.each(obj.find(String(this)), function () {
-      console.log($(this).value)
+    $.each(obj.find(String(this)).not("[name='minInputs']"), function () {
       let base = $(this).attr("id").replace(regex, "");
       $(this).attr("id", `${base}_${next_index}`);
       base = $(this).attr("name").replace(regex, "");
       $(this).attr("name", `${base}_${next_index}`);
-      console.log($(this).value)
     });
   });
 
@@ -131,40 +131,20 @@ function getValidationRules() {
   return rule_dict;
 }
 
-function submitForm(form, exercise) {
-
-  let fieldsets = $(form).find("fieldset");
-  console.log(fieldsets)
-  $.each(fieldsets, function () {
-    let minItems = $(this).find("[name='minInputs']").first().value
-    console.log(minItems)
-  });
-
-
-  // $.each(obj.find("label"), function () {
-  //   let base = $(this).attr("for").replace(regex, "");
-  //   $(this).attr("for", `${base}_${next_index}`);
-  // });
-
-
-  // exercise["formData"] = getFormData($(form));
-  // var method = $(`#${exercise.id}`).hasClass("mail") ? "mail" : "";
-  // executeAndCheck(exercise)
-}
 
 function getFormData($form) {
   var unindexed_array = $form.serializeArray();
   var indexed_array = {};
-
+  
   $.map(unindexed_array, function (n, i) {
     indexed_array[n["name"]] = n["value"];
   });
-
+  
   return indexed_array;
 }
 
 function loadPersist(exercise) {
-  $.each($(`#${exercise.id} input`), function () {
+  $.each($(`#${exercise.id} input`).not("[name='minInputs']"), function () {
     $(this).attr("value", localStorage.getItem($(this).attr("name")));
     $(this).on("change", (e) => {
       localStorage.setItem(e.target.name, e.target.value);
@@ -177,4 +157,38 @@ function loadPersist(exercise) {
       localStorage.setItem(e.target.name, e.target.value);
     });
   });
+}
+
+function minimumElements(form) {
+  var valid = true;
+  let fieldsets = $(form).find("fieldset");
+  $.each(fieldsets, function () {
+    let hidden_inputs = $(this).find("[name='minInputs']")
+    if (hidden_inputs.length > 0 ) {
+      var minInputs = hidden_inputs[0].value;
+    }
+    var additionalInputs = $(this).find("#additionalInput .input-group").length;
+    if ( minInputs != (additionalInputs + 1)) {
+      valid = false;
+      $(this).addClass("error")
+      $(this).find("#fieldset-error").html(
+        `A minimum of ${minInputs} items are required. Only ${(additionalInputs + 1)} were given.`
+      )
+    } else {
+      $(this).removeClass("error")
+      $(this).find("#fieldset-error").html("")
+    }
+    $('html, body').animate({
+      scrollTop: $("fieldset.error").offset().top
+    }, 400);
+  });
+  return valid
+}
+
+function submitForm(form, exercise) {
+  if (minimumElements(form)) {
+    exercise["formData"] = getFormData($(form));
+    var method = $(`#${exercise.id}`).hasClass("mail") ? "mail" : "";
+    executeAndCheck(exercise)
+  }
 }
