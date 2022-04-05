@@ -303,9 +303,9 @@ function executeAndCheck(exercise) {
 
   showLoading(id_executed);
   showLoading(id_completed);
-  $(`#${exercise.id} #msg-detail`).slideUp(200);
   $(`#${exercise.id} #error-msg`).html("");
   $(`#${exercise.id} #success-msg`).html("");
+  $(`#${exercise.id} #notification-msg`).html("");
 
 
   let data = {
