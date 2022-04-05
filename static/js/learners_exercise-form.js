@@ -168,7 +168,7 @@ function minimumElements(form) {
       var minInputs = hidden_inputs[0].value;
     }
     var additionalInputs = $(this).find("#additionalInput .input-group").length;
-    if ( minInputs != (additionalInputs + 1)) {
+    if ( (additionalInputs + 1) < minInputs) {
       valid = false;
       $(this).addClass("error")
       $(this).find("#fieldset-error").html(
@@ -178,9 +178,12 @@ function minimumElements(form) {
       $(this).removeClass("error")
       $(this).find("#fieldset-error").html("")
     }
-    $('html, body').animate({
-      scrollTop: $("fieldset.error").offset().top
-    }, 400);
+    let error = $("fieldset.error")
+    if (error.length > 0) {
+      $('html, body').animate({
+        scrollTop: $("fieldset.error").offset().top
+      }, 400);
+    }
   });
   return valid
 }
