@@ -325,7 +325,7 @@ function executeAndCheck(exercise) {
     (payload = { url: `/execution/${exercise.type}`, data: data }),
     (token = getCookie("access_token_cookie"))
   ).then(function (data, textStatus, jqXHR) {
-    showExecutionState(exercise.id, data)
+    showExecutionState(exercise.id, data);
     sendAjax(
       (type = "GET"),
       (payload = { url: `/execution/${exercise.id}` }),
