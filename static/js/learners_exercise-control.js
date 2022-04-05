@@ -1,3 +1,15 @@
+
+  const short_msgs = {
+    executed: "Successfully executed.",
+    execution_failed: "Connection failed.",
+    completed: "Exercise completed.",
+    completion_failed: "Exercise not completed.",
+    never_executed: "Exercise not executed yet.",
+    server_error: "Server error.",
+    data_fail: "Error in data format."
+  }
+
+
 /*
 The following short functions 'showLoading', 'showSuccess', 'showError' serve 
 to give the user a visual feedback on the exercise progress. Basically they 
@@ -14,6 +26,7 @@ function showLoading(id) {
     .stop(true, true)
     .removeClass("failed")
     .removeClass("success")
+    .removeClass("none")
     .addClass("loading")
     .show();
 }
@@ -27,6 +40,7 @@ function showSuccess(id, delay = 200) {
       $(this)
         .removeClass("loading")
         .removeClass("failed")
+        .removeClass("none")
         .addClass("success")
         .show();
       next();
@@ -42,7 +56,24 @@ function showError(id, delay = 200) {
       $(this)
         .removeClass("loading")
         .removeClass("success")
+        .removeClass("none")
         .addClass("failed")
+        .show();
+      next();
+    });
+}
+
+function showNone(id, delay = 200) {
+  // switch indicator to fail
+  $(id)
+    .stop(true, true)
+    .delay(delay)
+    .queue(function (next) {
+      $(this)
+        .removeClass("loading")
+        .removeClass("success")
+        .removeClass("failed")
+        .addClass("none")
         .show();
       next();
     });
@@ -51,80 +82,101 @@ function showError(id, delay = 200) {
 function visualFeedback(
   parentID = "",
   data = "",
-  disable_on_success = false,
-  msg = {
-    executed: "Successfully executed.",
-    execution_failed: "Connection failed.",
-    completed: "Exercise completed",
-    completion_failed: "Exercise not completed.",
-    never_executed: "Exercise not executed yet.",
-  }
+  disable_on_success = false
 ) {
+  if (data == "" || data == undefined) {
+    showError(`#${parentID} #exercise_executed`);
+    showError(`#${parentID} #exercise_completed`);
+    $(parentID + " #error-msg").html(short_msgs.server_error);
+    return false;
+  } else if (!data.history) {
+    showNoExecution(parentID);
+    return false;
+  } else {   
+    showMsg(parentID, data);
+    showExecutionState(parentID, data);
+    showCompletionState(parentID, data, disable_on_success);
+    return true;
+  }
+}
+
+function showNoExecution(parentID) {
+  var notification_container = $(`#${parentID} #notification-msg`);
+  showNone(`#${parentID} #exercise_executed`);
+  showNone(`#${parentID} #exercise_completed`);
+  notification_container.html(short_msgs.never_executed);
+}
+
+function showMsg(parentID, data) {
+  var msg_detail = $(`#${parentID} #msg-detail`);
+  if (!data.completed || data.never_executed || !data.executed) {
+    msg_detail.removeClass("sucess")
+    msg_detail.delay(200).addClass("error")
+  } else {
+    msg_detail.removeClass("error")
+    msg_detail.delay(200).addClass("sucess")
+  }
+  if (data.msg) {
+    msg_detail.html(data.msg);
+    msg_detail.slideDown();
+  } else {
+    msg_detail.html("");
+  }
+}
+
+function showExecutionState(parentID, data) {
   var id_executed = `#${parentID} #exercise_executed`;
   var id_completed = `#${parentID} #exercise_completed`;
   var error_container = $(`#${parentID} #error-msg`);
-  var msg_detail = $(`#${parentID} #msg-detail`);
   var success_container = $(`#${parentID} #success-msg`);
+  var notification_container = $(`#${parentID} #notification-msg`);
   var submit_btn = $(`#${parentID} #submitExercise`);
-
-  if (data == "" || data == undefined) {
-    showError(id_executed);
-    showError(id_completed);
-    $(parentID + " #error-msg").html("Server error.");
-    return false;
-  }
-
-  // display execution state
+  
   if (data.executed != undefined) {
+    notification_container.html("");
     if (data.executed) {
       showSuccess(id_executed);
       error_container.html("");
-      success_container.html("");
+      success_container.html(short_msgs.executed);
     } else {
       showError(id_executed);
       showError(id_completed);
-      submit_btn.prop("disabled", false);
       success_container.html("");
-      if (data.connection_failed) {
-        error_container.html(msg.execution_failed);
-      } else {
-        error_container.html(msg.never_executed);
-      }
-      if (data.msg) {
-        msg_detail.html(data.msg);
-      }
+      error_container.html(short_msgs.execution_failed);
+      submit_btn.prop("disabled", false);
       return false;
     }
+  } else {
+    error_container.html(short_msgs.server_error);
   }
+}
 
-  // display completion state
+function showCompletionState(parentID, data, disable_on_success) {
+  var id_completed = `#${parentID} #exercise_completed`;
+  var error_container = $(`#${parentID} #error-msg`);
+  var success_container = $(`#${parentID} #success-msg`);
+  var submit_btn = $(`#${parentID} #submitExercise`);
+  var notification_container = $(`#${parentID} #notification-msg`);
+
   if (data.completed != undefined) {
+    notification_container.html("");
     if (data.completed) {
       showSuccess(id_completed);
       error_container.html("");
-      success_container.html(msg.completed);
+      success_container.html(short_msgs.completed);
       if (!disable_on_success) submit_btn.prop("disabled", false);
       return true;
     } else {
       showError(id_completed);
       success_container.html("");
-      error_container.html(msg.completion_failed);
-      if (data.msg) {
-        msg_detail.html(data.msg);
-      }
+      error_container.html(short_msgs.completion_failed);
       submit_btn.prop("disabled", false);
       return false;
     }
   } else {
-    submit_btn.prop("disabled", false);
-  }
-
-  if (data.never_executed) {
-    showError(id_executed);
     showError(id_completed);
-    success_container.html("");
-    error_container.html("No exercises executed.");
-    return false;
+    error_container.html(short_msgs.data_fail);
+    submit_btn.prop("disabled", false);
   }
 }
 
@@ -251,6 +303,9 @@ function executeAndCheck(exercise) {
 
   showLoading(id_executed);
   showLoading(id_completed);
+  $(`#${exercise.id} #msg-detail`).slideUp(200);
+  $(`#${exercise.id} #error-msg`).html("");
+  $(`#${exercise.id} #success-msg`).html("");
 
 
   let data = {
@@ -270,8 +325,7 @@ function executeAndCheck(exercise) {
     (payload = { url: `/execution/${exercise.type}`, data: data }),
     (token = getCookie("access_token_cookie"))
   ).then(function (data, textStatus, jqXHR) {
-    visualFeedback(exercise.id, data, disable_on_success);
-    printHistory(exercise.id, data.history);
+    showExecutionState(exercise.id, data)
     sendAjax(
       (type = "GET"),
       (payload = { url: `/execution/${exercise.id}` }),

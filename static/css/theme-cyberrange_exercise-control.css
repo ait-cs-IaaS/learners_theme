@@ -108,6 +108,16 @@ div.exercise-control.tip p:first-child:after {
         rot_circle 3s cubic-bezier(.15, 1.48, .84, -0.41) infinite;
 }
 
+.none .stat_circle {
+    stroke-dasharray: 166;
+    stroke-dashoffset: 0;
+    stroke-width: 10;
+    stroke-miterlimit: 10;
+    stroke: var(--light-1);
+    fill: none;
+    animation: none;
+}
+
 @keyframes rot_circle {
     0% {
         stroke-dashoffset: 0;
@@ -288,10 +298,10 @@ div.exercise-control #msg-container {
 }
 
 div.exercise-control #error-msg,
-div.exercise-control #success-msg {
+div.exercise-control #success-msg,
+div.exercise-control #notification-msg {
     margin: auto;
     padding: 0;
-    color: var(--danger);
     font-size: 90%;
     line-height: 1.2em;
     transition: all 400ms;
@@ -342,5 +352,9 @@ div.exercise-control #history table tr th:last-child {
 #msg-detail.error, .error #fieldset-error {
     border-left-color: #d34a5d;
     background-color: #f4e7e7;
-    display: inline-block;
+}
+
+#msg-detail.sucess {
+    border-left-color: var(--green-mid);
+    background-color: #e2f0e8;
 }
