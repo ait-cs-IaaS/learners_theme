@@ -162,6 +162,13 @@ div.exercise-control.tip p:first-child:after {
         scale .3s ease-in-out .9s both;
 }
 
+.partial .stat_icon {
+    box-shadow: inset 0px 0px 0px #E3A671;
+    animation:
+        fill_orange 0.8s ease-in-out .4s forwards,
+        scale .3s ease-in-out .9s both;
+}
+
 .failed .stat_icon {
     box-shadow: inset 0px 0px 0px var(--danger);
     animation:
@@ -182,7 +189,7 @@ div.exercise-control.tip p:first-child:after {
     display: none;
 }
 
-.success .stat_cross {
+.success .stat_cross, .partial .stat_cross {
     display: none;
 }
 
@@ -208,6 +215,12 @@ div.exercise-control.tip p:first-child:after {
 @keyframes fill_green {
     100% {
         box-shadow: inset 0px 0px 0px 30px var(--green-mid);
+    }
+}
+
+@keyframes fill_orange {
+    100% {
+        box-shadow: inset 0px 0px 0px 30px #E3A671;
     }
 }
 
@@ -297,9 +310,7 @@ div.exercise-control #msg-container {
     vertical-align: middle;
 }
 
-div.exercise-control #error-msg,
-div.exercise-control #success-msg,
-div.exercise-control #notification-msg {
+div.exercise-control #msg-container #msg {
     margin: auto;
     padding: 0;
     font-size: 90%;
@@ -307,15 +318,22 @@ div.exercise-control #notification-msg {
     transition: all 400ms;
 }
 
-div.exercise-control #error-msg,
+div.exercise-control #msg.error,
 div.exercise-control .failed {
     color: var(--danger);
 }
 
-div.exercise-control #success-msg,
+div.exercise-control #msg.success,
 div.exercise-control .success {
     color: var(--green-mid);
 }
+
+div.exercise-control #partial-msg,
+div.exercise-control .partial {
+    color: #E3A671;
+}
+
+
 
 
 div.exercise-control #history table {
@@ -348,6 +366,7 @@ div.exercise-control #history table tr th:last-child {
     border-bottom-right-radius: 4px;
     border-left: 4px solid;
     transition: all 400ms;
+    color: var(--MAIN-TEXT-color) !important;
 }
 
 #msg-detail.error, .error #fieldset-error {
@@ -358,4 +377,9 @@ div.exercise-control #history table tr th:last-child {
 #msg-detail.sucess {
     border-left-color: var(--green-mid);
     background-color: #e2f0e8;
+}
+
+#msg-detail.partial {
+    border-left-color: #E3A671;
+    background-color: #f9eadd;
 }
