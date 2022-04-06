@@ -134,7 +134,9 @@ div.exercise-control.tip p:first-child:after {
 /* ---------------------------- Check/Cross Icon ---------------------------- */
 
 .loading .stat_check,
-.loading .stat_cross {
+.loading .stat_cross,
+.none .stat_check,
+.none .stat_cross {
     display: none;
 }
 
@@ -372,6 +374,10 @@ div.exercise-control #history table tr th:last-child {
 #msg-detail.error, .error #fieldset-error {
     border-left-color: #d34a5d;
     background-color: #f4e7e7;
+}
+
+.error #fieldset-error {
+    display: inline-block;
 }
 
 #msg-detail.sucess {
