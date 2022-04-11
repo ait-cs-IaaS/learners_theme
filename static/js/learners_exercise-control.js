@@ -120,13 +120,13 @@ function showNoExecution(parentID) {
 function showMsg(parentID, data) {
   var msg_detail = $(`#${parentID} #msg-detail`);
   msg_detail.removeClass("sucess error partial")
-  if (data.partial )
+  if (data.partial)
     msg_detail.addClass("partial")
   else if (!data.completed || data.never_executed || !data.executed)
     msg_detail.addClass("error")
   else
     msg_detail.addClass("sucess")
-  
+
   if (data.msg) {
     msg_detail.html(data.msg);
     msg_detail.slideDown();
@@ -243,13 +243,13 @@ function printHistory(parentID, history) {
       let response_time = (() => (this.response_time) ? this.response_time : "no response")();
       let completed = (() => {
         if (this.partial)
-          return `<span class='partial'>${short_msgs.history_partial}</span>`          
+          return `<span class='partial'>${short_msgs.history_partial}</span>`
         if (this.completed)
           return `<span class='success'>${short_msgs.history_completed}</span>`
         else
           return `<span class='failed'>${short_msgs.history_fail}</span>`;
       })();
-      
+
       tbl_body += `<tr> <td> ${start_time} </td> <td> ${response_time} </td> <td> ${completed} </td> </tr>`;
     });
 
@@ -302,12 +302,12 @@ function executeAndCheck(exercise) {
     .then(function (data, textStatus, jqXHR) {
       showExecutionState(exercise.id, data);
       sendAjax("GET", { url: `/execution/${exercise.id}` })
-      .then(function (data, textStatus, jqXHR) {
-        visualFeedback(exercise.id, data, disable_on_success);
-        printHistory(exercise.id, data.history);
-        getState();
-        defer.resolve(data);
-      })
+        .then(function (data, textStatus, jqXHR) {
+          visualFeedback(exercise.id, data, disable_on_success);
+          printHistory(exercise.id, data.history);
+          getState();
+          defer.resolve(data);
+        })
         .catch(function (jqXHR, textStatus, errorThrown) {
           visualFeedback(exercise.id, jqXHR, disable_on_success);
           defer.reject(jqXHR, textStatus, errorThrown);
@@ -358,7 +358,9 @@ function getState() {
 
         $.each(parentExercise.exercises, function (i, subExercise) {
           let subMenuItem = $(`.topics li[title='${subExercise.title}']`).find("a").first()
-          update_counter(subMenuItem, subExercise.done, subExercise.total)
+          if (subMenuItem.length > 0) {
+            update_counter(subMenuItem, subExercise.done, subExercise.total)
+          }
         })
       }
       );
