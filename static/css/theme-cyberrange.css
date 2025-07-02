@@ -720,6 +720,8 @@ table.pdf tr td,
 tbody.pdf,
 tbody.pdf tr td {
   max-width: 700px;
+  font-size: 100%;
+  color: #000 !important;
   /* font-size: 12px; */
 }
 

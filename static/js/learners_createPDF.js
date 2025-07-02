@@ -9,78 +9,73 @@ async function downloadPDF(btn) {
     })
 }
 
-function generatePDF() {
-    return new Promise(resolve => {
-        var pdf = new jsPDF("portrait", "px", "a4", true);
-        let $source = $("#body-inner").clone();
+async function generatePDF() {
+  return new Promise(async (resolve) => {
+    var pdf = new jsPDF("portrait", "px", "a4", true);
+    let $source = $("#body-inner").clone();
 
-        var selects = $("#body-inner").find("select");
-        $(selects).each(function(i) {
-            var select = this;
-            $source.find("select").eq(i).val($(select).val());
-        });
-
-        var pdf_spacer = document.createElement("div");
-        pdf_spacer.id = "pdf-viewpoint-spacer";
-        $("#body-inner").append(pdf_spacer);
-
-        var pdf_container = document.createElement("div");
-        pdf_container.id = "pdfcontainer";
-        $("#body-inner").append(pdf_container);
-        
-        $("#pdfcontainer").append($source);
-        cleanHTML($("#pdfcontainer"));
-
-        source = $("#pdfcontainer")[0];
-
-        // let test = $("#body-inner")[0]
-
-        pdf.html(source, {
-          callback: function (doc) {
-            doc.setFontSize(7);
-            doc.setTextColor("#9a9a9a");
-            doc.setFont("helvetica");
-
-            var pageTitle = $(source).find("h1:first").text().trim();
-
-            const pageCount = doc.internal.getNumberOfPages();
-            for (let i = 1; i <= pageCount; i++) {
-                doc.setPage(i);
-                const pageSize = doc.internal.pageSize;
-                const pageWidth = pageSize.width ? pageSize.width : pageSize.getWidth();
-                const pageHeight = pageSize.height
-                ? pageSize.height
-                : pageSize.getHeight();
-                const header = "Report: " + pageTitle;
-                const footer = `Page ${i} of ${pageCount}`;
-
-                // Header
-                doc.text(header, 40, 20, { baseline: "top" });
-
-                // Footer
-                doc.text(footer, 40, pageHeight - 20, { baseline: "bottom" });
-            }
-            resolve('resolved');
-            doc.save("Report_" + pageTitle + ".pdf");
-            $("#pdfcontainer").remove();
-            $("#pdf-viewpoint-spacer").remove();
-        },
-        x: 0,
-        y: 0,
-        margin: 40,
-        autoPaging: "text",
-        filename: "test.pdf",
-        html2canvas: {
-          scale: 0.5
-        },
-        // image: {},
-        // jsPDF: {},
-        // width: 460
-      })
+    var selects = $("#body-inner").find("select");
+    $(selects).each(function(i) {
+        var select = this;
+        $source.find("select").eq(i).val($(select).val());
     });
+
+    var pdf_spacer = document.createElement("div");
+    pdf_spacer.id = "pdf-viewpoint-spacer";
+    $("#body-inner").append(pdf_spacer);
+
+    var pdf_container = document.createElement("div");
+    pdf_container.id = "pdfcontainer";
+    $("#body-inner").append(pdf_container);
+    
+    $("#pdfcontainer").append($source);
+
+    // ✅ Wait for HTML to be cleaned up (especially the PDF rendering part)
+    await cleanHTML($("#pdfcontainer"));
+
+    source = $("#pdfcontainer")[0];
+
+    pdf.html(source, {
+      callback: function (doc) {
+        doc.setFontSize(7);
+        doc.setTextColor("#9a9a9a");
+        doc.setFont("helvetica");
+
+        var pageTitle = $(source).find("h1:first").text().trim();
+
+        const pageCount = doc.internal.getNumberOfPages();
+        for (let i = 1; i <= pageCount; i++) {
+          doc.setPage(i);
+          const pageSize = doc.internal.pageSize;
+          const pageWidth = pageSize.width || pageSize.getWidth();
+          const pageHeight = pageSize.height || pageSize.getHeight();
+          const header = "Report: " + pageTitle;
+          const footer = `Page ${i} of ${pageCount}`;
+
+          doc.text(header, 40, 20, { baseline: "top" });
+          doc.text(footer, 40, pageHeight - 20, { baseline: "bottom" });
+        }
+
+        resolve("resolved");
+        doc.save("Report_" + pageTitle + ".pdf");
+        $("#pdfcontainer").remove();
+        $("#pdf-viewpoint-spacer").remove();
+      },
+      x: 0,
+      y: 0,
+      margin: 40,
+      autoPaging: "text",
+      filename: "test.pdf",
+      html2canvas: {
+        ignoreElements: (el) => el.tagName === "svg",
+        scale: 0.5
+      }
+    });
+  });
 }
 
-function cleanHTML(source) {
+
+async function cleanHTML(source) {
   const exception_list = "table, thead, tbody, tr, td, th"
   $.each($(source).find("*"), function () {
     let element = $(this)[0];
@@ -92,6 +87,13 @@ function cleanHTML(source) {
     $(element).addClass("pdf");
   });
 
+  // Adjust table inputs
+  $.each($(source).find("table.input"), function () {
+    const $clonedTable = $(this).clone();
+    $clonedTable.find('[contenteditable="true"]').removeAttr('contenteditable');
+    $(this).replaceWith($clonedTable);  
+  });
+
   // Adjust Image Sizes
   $.each($(source).find(".input-row"), function () {
     $(this).addClass("wide");
@@ -101,6 +103,9 @@ function cleanHTML(source) {
   $.each($(source).find("img"), function () {
     adjustImgSize(this);
   });
+
+  // Replace PDFs
+  await replacePdfEmbedsWithImages();
 
   // Replace hyperlinks
   $.each($(source).find("a"), function () {
@@ -217,5 +222,46 @@ function adjustImgSize(img) {
     }
   } else if (orignial_height > max_value) {
     $(img).height(max_value);
+  }
+}
+
+async function replacePdfEmbedsWithImages() {
+  const pdfContainers = $("#pdfcontainer").find('.pdf-container');
+
+  for (const container of pdfContainers) {
+    const pdfUrl = container.querySelector('object')?.getAttribute('data') || 
+                   container.querySelector('iframe')?.getAttribute('src');
+
+    if (!pdfUrl) continue;
+
+    const pdf = await pdfjsLib.getDocument(pdfUrl).promise;
+    console.log(pdf)
+    const pageCount = pdf.numPages;
+
+    const imageContainer = document.createElement('div');
+    imageContainer.style.display = 'flex';
+    imageContainer.style.flexDirection = 'column';
+    imageContainer.style.gap = '10px';
+
+    for (let pageNum = 1; pageNum <= pageCount; pageNum++) {
+      const page = await pdf.getPage(pageNum);
+      const viewport = page.getViewport({ scale: 2 }); // Adjust scale for quality
+      const canvas = document.createElement('canvas');
+      const context = canvas.getContext('2d');
+
+      canvas.width = viewport.width;
+      canvas.height = viewport.height;
+
+      await page.render({ canvasContext: context, viewport }).promise;
+
+      const img = document.createElement('img');
+      img.src = canvas.toDataURL('image/png');
+      img.style.width = '100%';
+      img.style.height = 'auto';
+
+      imageContainer.appendChild(img);
+    }
+
+    container.replaceWith(imageContainer);
   }
 }
