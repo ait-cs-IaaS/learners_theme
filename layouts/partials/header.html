@@ -44,6 +44,14 @@
   <head>
     <meta charset="utf-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <!-- apply the saved light/dark choice before first paint to avoid a flash -->
+    <script>
+      try {
+        if (localStorage.getItem('learners-theme') === 'dark') {
+          document.documentElement.setAttribute('data-theme', 'dark');
+        }
+      } catch (e) {}
+    </script>
     {{ hugo.Generator }}
     {{ partial "meta.html" . }}
     {{ partial "favicon.html" . }}
@@ -68,7 +76,7 @@
     {{with .Site.Params.themeVariant}}
     <link href='{{(printf "css/theme-%s.css" .) | relURL}}{{ if $assetBusting }}?{{ now.Unix }}{{ end }}' rel="stylesheet">
     {{end}}
-    {{ range .Site.Params.custom_css -}}
+    <link href='{{"css/theme-cyberrange-dark.css" | relURL}}{{ if $assetBusting }}?{{ now.Unix }}{{ end }}' rel="stylesheet">    {{ range .Site.Params.custom_css -}}
     <link href='{{(printf "%s" .) | relURL}}{{ if $assetBusting }}?{{ now.Unix }}{{ end }}' rel="stylesheet">
     {{- end }}
 

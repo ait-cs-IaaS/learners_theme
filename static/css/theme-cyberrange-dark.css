@@ -1,0 +1,291 @@
+/*
+ * Dark mode for the cyberrange theme variant.
+ * Every rule is scoped to html[data-theme="dark"], which is set by the
+ * sidebar theme toggle (see learn.js) and restored early in header.html.
+ */
+
+html[data-theme="dark"] {
+  color-scheme: dark;
+
+  --AIT-red: #1fb5b6;
+  --dm-bg: #15171e;
+  --dm-surface: #1e2029;
+  --dm-surface-2: #282a35;
+  --dm-border: #3a3d4a;
+  --dm-text: #dcdde3;
+  --dm-text-muted: #a3a5b0;
+
+  --background-gray-color: var(--dm-surface);
+  --text-color: var(--dm-text);
+
+  --MAIN-TEXT-color: var(--dm-text);
+  --MAIN-TITLES-TEXT-color: var(--dm-text-muted);
+  --MENU-SECTIONS-LINK-color: var(--dm-text);
+  --MENU-SECTION-HR-color: var(--dm-border);
+}
+
+/* ---------- page ---------- */
+
+html[data-theme="dark"] body,
+html[data-theme="dark"] #body {
+  background: var(--dm-bg);
+  color: var(--dm-text) !important;
+}
+
+html[data-theme="dark"] h2,
+html[data-theme="dark"] p,
+html[data-theme="dark"] input,
+html[data-theme="dark"] label,
+html[data-theme="dark"] ul,
+html[data-theme="dark"] li,
+html[data-theme="dark"] td,
+html[data-theme="dark"] th {
+  color: var(--dm-text);
+}
+
+html[data-theme="dark"] hr {
+  border-color: var(--dm-border);
+}
+
+html[data-theme="dark"] #sidebar-toggle {
+  color: var(--dm-text-muted);
+}
+
+html[data-theme="dark"] #body .nav:hover {
+  background: var(--dm-surface);
+}
+
+/* ---------- sidebar ---------- */
+
+html[data-theme="dark"] #sidebar ul li.active > a {
+  background: var(--dm-surface);
+}
+
+html[data-theme="dark"] .dd-item a.inactive_menu_link {
+  color: #6c6e7a !important;
+}
+
+html[data-theme="dark"] .dd-item a.inactive_menu_link:after {
+  color: #5a5c68 !important;
+}
+
+/* ---------- code ---------- */
+
+html[data-theme="dark"] code {
+  background: var(--dm-surface-2);
+  color: var(--dm-text);
+}
+
+html[data-theme="dark"] #body-inner pre {
+  background-color: #0d0e12;
+  border: 1px solid var(--dm-border);
+}
+
+html[data-theme="dark"] #body-inner pre code {
+  background: transparent;
+}
+
+/* ---------- tables, quotes, notices ---------- */
+
+html[data-theme="dark"] table,
+html[data-theme="dark"] th,
+html[data-theme="dark"] td {
+  border-color: var(--dm-border) !important;
+}
+
+html[data-theme="dark"] th {
+  background: var(--dm-surface-2);
+}
+
+html[data-theme="dark"] table.layout-table.striped tr:nth-child(odd) {
+  background-color: var(--dm-surface);
+}
+
+html[data-theme="dark"] table.layout-table.divider tr td {
+  border-color: var(--dm-surface-2) !important;
+}
+
+html[data-theme="dark"] blockquote {
+  border-left-color: var(--dm-border);
+}
+
+html[data-theme="dark"] blockquote p,
+html[data-theme="dark"] blockquote cite {
+  color: var(--dm-text-muted);
+}
+
+html[data-theme="dark"] div.notices p {
+  color: var(--dm-text);
+}
+html[data-theme="dark"] div.notices.info p {
+  background: #3a2f1f;
+}
+html[data-theme="dark"] div.notices.warning p {
+  background: #3d2224;
+}
+html[data-theme="dark"] div.notices.note p {
+  background: #1d2e3b;
+}
+html[data-theme="dark"] div.notices.tip p {
+  background: #1f3322;
+}
+
+html[data-theme="dark"] .instructor-notes {
+  background-color: #3b3a1a !important;
+  border-color: #8c8a2c !important;
+}
+
+/* ---------- images & diagrams ----------
+ * Keep images on a light ground (many are transparent PNGs/SVGs with dark
+ * strokes) but put them in a dark frame.
+ */
+
+html[data-theme="dark"] .image-container,
+html[data-theme="dark"] .drawio-exercise-container,
+html[data-theme="dark"] #drawio-container {
+  background-color: var(--dm-surface);
+}
+
+html[data-theme="dark"] .image-container img,
+html[data-theme="dark"] .image-container.pdf img,
+html[data-theme="dark"] .drawio-exercise-container img,
+html[data-theme="dark"] .drawio-exercise-container iframe,
+html[data-theme="dark"] .drawio-previewer {
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.6);
+}
+
+/* ---------- forms & buttons ---------- */
+
+html[data-theme="dark"] textarea,
+html[data-theme="dark"] select,
+html[data-theme="dark"] input[type="email"],
+html[data-theme="dark"] input[type="number"],
+html[data-theme="dark"] input[type="password"],
+html[data-theme="dark"] input[type="search"],
+html[data-theme="dark"] input[type="tel"],
+html[data-theme="dark"] input[type="text"],
+html[data-theme="dark"] input[type="url"],
+html[data-theme="dark"] input[type="date"],
+html[data-theme="dark"] input[type="datetime-local"],
+html[data-theme="dark"] input[type="time"],
+html[data-theme="dark"] .input-group select {
+  background-color: var(--dm-surface-2);
+  border-color: var(--dm-border);
+  color: var(--dm-text);
+}
+
+html[data-theme="dark"] fieldset {
+  border-color: var(--dm-border);
+}
+
+html[data-theme="dark"] button:disabled,
+html[data-theme="dark"] button[disabled] {
+  background-color: #3a3c46;
+  color: #8a8c96;
+}
+
+html[data-theme="dark"] button.add-case:hover {
+  background-color: color-mix(in srgb, var(--primary-color) 15%, var(--dm-bg));
+}
+
+html[data-theme="dark"] button.gpdf {
+  background-color: var(--dm-surface-2);
+  color: var(--dm-text);
+}
+
+html[data-theme="dark"] table.input-table,
+html[data-theme="dark"] table.input-table tr td[contenteditable="true"] {
+  background-color: var(--dm-surface);
+}
+
+html[data-theme="dark"] .inject-email-container:not(.ransom) {
+  background-color: var(--dm-surface) !important;
+}
+
+html[data-theme="dark"] .risk-table {
+  border-color: var(--dm-bg);
+}
+html[data-theme="dark"] .risk-table .risk-header-horizontal,
+html[data-theme="dark"] .risk-table .risk-header-vertical,
+html[data-theme="dark"] .risk-table tr th:empty {
+  background-color: var(--dm-bg);
+}
+
+html[data-theme="dark"] details,
+html[data-theme="dark"] summary {
+  background: var(--dm-surface);
+}
+
+html[data-theme="dark"] .questionnaire-option {
+  border-color: var(--dm-border);
+}
+html[data-theme="dark"] .questionnaire-option-container input[type="radio"] + label {
+  background: var(--dm-surface);
+}
+html[data-theme="dark"] .questionnaire-option-container input[type="radio"] + label:hover {
+  background: var(--dm-surface-2);
+}
+
+html[data-theme="dark"] .btn-default-withstatus,
+html[data-theme="dark"] .btn-default-withstatus:disabled,
+html[data-theme="dark"] .btn-default-withstatus:disabled .status,
+html[data-theme="dark"] .btn-default-withstatus:disabled:hover {
+  background-color: var(--dm-surface) !important;
+}
+html[data-theme="dark"] .btn-default-withstatus:disabled .label {
+  background-color: #3a3c46 !important;
+}
+html[data-theme="dark"] .btn-default-withstatus .status {
+  color: var(--dm-text-muted);
+}
+
+html[data-theme="dark"] .execution-container,
+html[data-theme="dark"] .script_response {
+  background-color: var(--dm-surface);
+}
+
+html[data-theme="dark"] #body .tab-nav-button.active {
+  background-color: var(--dm-bg) !important;
+  color: var(--dm-text);
+}
+
+html[data-theme="dark"] .slides-container {
+  border-left-color: var(--dm-bg);
+}
+
+/* ---------- theme toggle (always styled, both themes) ---------- */
+
+#sidebar #theme-toggle-section {
+  flex-shrink: 0;
+  flex-grow: 0;
+  padding: 0.75rem 1rem;
+  border-top: 1px solid var(--MENU-SECTION-HR-color);
+  opacity: 0.85;
+}
+
+#theme-toggle {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.5rem;
+  background: none;
+  border: 0;
+  padding: 0.25rem 0;
+  cursor: pointer;
+  color: var(--MENU-SECTIONS-LINK-color);
+  font-family: "Rubik", sans-serif;
+  font-size: 0.85rem;
+}
+
+#theme-toggle:hover,
+#theme-toggle:focus-visible {
+  color: var(--MENU-SECTIONS-LINK-HOVER-color);
+}
+
+#theme-toggle .theme-toggle-dark,
+html[data-theme="dark"] #theme-toggle .theme-toggle-light {
+  display: inline;
+}
+#theme-toggle .theme-toggle-light,
+html[data-theme="dark"] #theme-toggle .theme-toggle-dark {
+  display: none;
+}

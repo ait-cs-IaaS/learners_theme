@@ -12,6 +12,9 @@ async function downloadPDF(btn) {
 async function generatePDF() {
   return new Promise(async (resolve) => {
     var pdf = new jsPDF("portrait", "px", "a4", true);
+    // render the PDF with the light theme, then restore the user's choice
+    var savedTheme = document.documentElement.getAttribute("data-theme");
+    document.documentElement.removeAttribute("data-theme");
     let $source = $("#body-inner").clone();
 
     var selects = $("#body-inner").find("select");
@@ -60,6 +63,9 @@ async function generatePDF() {
         doc.save("Report_" + pageTitle + ".pdf");
         $("#pdfcontainer").remove();
         $("#pdf-viewpoint-spacer").remove();
+        if (savedTheme) {
+          document.documentElement.setAttribute("data-theme", savedTheme);
+        }
       },
       x: 0,
       y: 0,

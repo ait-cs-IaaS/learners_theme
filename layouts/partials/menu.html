@@ -103,6 +103,12 @@
       </ul>
     </section>
     {{ end }}
+    <section id="theme-toggle-section">
+      <button type="button" id="theme-toggle" aria-label="Toggle dark mode" title="Toggle dark mode">
+        <span class="theme-toggle-dark"><i class="fas fa-moon fa-fw"></i> Dark mode</span>
+        <span class="theme-toggle-light"><i class="fas fa-sun fa-fw"></i> Light mode</span>
+      </button>
+    </section>
     <section id="footer">
       {{ partial "menu-footer.html" . }}
     </section>

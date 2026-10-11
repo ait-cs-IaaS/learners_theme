@@ -232,7 +232,8 @@ jQuery(document).ready(function() {
         var code = $(this),
             text = code.text();
 
-        if (text.length > 0) {
+        // inline `code` (not inside <pre>) only gets a button unless disableInlineCopyToClipBoard is set
+        if (text.length > 0 && (code.parent().is('pre') || !window.disableInlineCopyToClipBoard)) {
             if (!clipInit) {
                 var text, clip = new ClipboardJS('.copy-to-clipboard', {
                     text: function(trigger) {
@@ -264,6 +265,19 @@ jQuery(document).ready(function() {
                 $(this).attr('aria-label', null).removeClass('tooltipped tooltipped-s tooltipped-w');
             });
         }
+    });
+
+    // light/dark theme toggle (initial value is applied in header.html)
+    $('#theme-toggle').on('click', function() {
+        var dark = document.documentElement.getAttribute('data-theme') !== 'dark';
+        if (dark) {
+            document.documentElement.setAttribute('data-theme', 'dark');
+        } else {
+            document.documentElement.removeAttribute('data-theme');
+        }
+        try {
+            localStorage.setItem('learners-theme', dark ? 'dark' : 'light');
+        } catch (e) {}
     });
 
     // allow keyboard control for prev/next links
